@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, BriefcaseBusiness } from "lucide-react";
+import { ArrowUpRight, BriefcaseBusiness, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -168,27 +168,40 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-
+        {/* <div classname="w-screen border-b border-gray-600 border-opacity-25"></div> */}
         <div className="flex flex-col md:flex-row justify-between items-center mt-12 pt-8 border-t border-gray-800">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
             © 2024 MyJob - Job Portal. All rights Reserved
           </p>
 
-          {/* Social Media Icons */}
-          {/* <div className="flex space-x-4">
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Facebook className="w-5 h-5" />
-            </Link>
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Youtube className="w-5 h-5" />
-            </Link>
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Instagram className="w-5 h-5" />
-            </Link>
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Twitter className="w-5 h-5" />
-            </Link>
-          </div> */}
+          <div>
+            <div className="flex space-x-1 mr-4">
+              <a
+                href="#"
+                className="w-12 h-12 text-white rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                className="w-12 h-12 text-white rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors"
+              >
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                className="w-12 h-12 text-white rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                className="w-12 h-12 text-white rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

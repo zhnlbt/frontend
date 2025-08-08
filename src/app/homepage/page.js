@@ -18,7 +18,7 @@ const StatCard = ({ icon, number, label, bgColor }) => (
 
 const JobCategory = ({ title, positions, isHighlighted = false }) => (
   <div className="mb-6 p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-    <h3 className={`font-medium ${isHighlighted ? 'text-blue-600' : 'text-gray-800'} mb-1 text-lg`}>
+    <h3 className={`font-medium ${isHighlighted ? 'text-blue-600 border-b border-blue-600' : 'text-gray-800'} mb-1 text-lg`}>
       {title}
     </h3>
     <p className="text-gray-500 text-sm">{positions}</p>
@@ -27,15 +27,15 @@ const JobCategory = ({ title, positions, isHighlighted = false }) => (
 
 const HomePage = () => {
   return (
-    <div className="w-full bg-[#F1F2F4] font-in">
+    <div className="container w-full bg-[#F1F2F4] font-in">
       <Header />
       {/* Hero Section */}
       <section className="bg-[#f1f2f4] py-20">
-        <div className="max-w-5/7 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-[68.75%] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div>
-              <h1 className="text-5xl font-medium text-gray-900 mb-6 leading-tight">
+              <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
                 Find a job that suits<br />
                 your interest & skills.
               </h1>
