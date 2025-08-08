@@ -3,6 +3,7 @@ import { Search, Phone, ChevronDown, BriefcaseBusiness } from "lucide-react";
 import LanguageDropdown from "./dropDown";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
+import NextBreadcrumb from "./breadcrumbs";
 
 const Header = () => {
    const router = useRouter()
@@ -15,6 +16,7 @@ const Header = () => {
   }
   return (
     <div className="bg-white border-b border-gray-200 font-in text-sm">
+      <NextBreadcrumb />
       <div className="border-b border-gray-100 text-gray-600 bg-[#F1F2F4] p-1">
         <div className="max-w-5/7 mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-10 text-sm">
           <div className="flex space-x-6">
