@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { ChevronUp, X, Plus } from 'lucide-react';
+import Header from '../components/navbar';
+import Footer from '../components/footer';
 
 const AccordionItem = ({ title, children, isExpanded, onToggle, onClose }) => {
   return (
@@ -18,7 +20,6 @@ const AccordionItem = ({ title, children, isExpanded, onToggle, onClose }) => {
                 e.stopPropagation();
                 onClose();
               }}
-SIGMA BIY
               className="p-1 hover:bg-gray-200 rounded transition-colors"
             >
               <X size={16} className="text-gray-500" />
@@ -74,6 +75,8 @@ const Accordion = () => {
   ];
 
   return (
+    <div className='p-o'>
+     <Header />
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="mx-auto bg-white rounded-xl shadow-lg p-8" style={{ maxWidth: '68.5%' }}>
         
@@ -139,6 +142,8 @@ const Accordion = () => {
         </div>
 
       </div>
+      <Footer />
+    </div>
     </div>
   );
 };
