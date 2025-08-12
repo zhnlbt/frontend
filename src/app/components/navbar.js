@@ -12,7 +12,7 @@ const Header = () => {
   router.push("/postAJob")
   }
   const handleSignIn = () => {
-    router.push("/SignIn")
+    router.push("/signIn")
   }
   return (
     <div className="bg-white border-b border-gray-200 font-in text-sm">
