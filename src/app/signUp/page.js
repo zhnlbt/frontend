@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BriefcaseBusiness } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const SignUp = () => {
+    const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,6 +32,9 @@ const SignUp = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
+  const handleNavigation = () => {
+    router.push('/verifyEmail');
+  }
 
   const validateForm = () => {
     const newErrors = {};
@@ -292,6 +297,7 @@ const SignUp = () => {
 
                 {/* Create Account Button */}
                 <button
+                  onClick={handleNavigation}
                   type="submit"
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center"
                 >
