@@ -52,7 +52,7 @@ const Custom404 = () => {
 
         <div className="flex-1 flex justify-center items-center relative">
           <div className="relative">
-            <Image 
+            <img 
               src="/Illustration.png" 
               alt="404 Robot Illustration" 
               className="w-auto h-96 max-w-full animate-bounce"
