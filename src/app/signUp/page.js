@@ -588,7 +588,7 @@ export default function SignUp() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Create account.</h1>
             <p className="text-gray-600">
               Already have account?{' '}
-              <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href="/signIn" className="text-blue-600 hover:text-blue-700 font-medium">
                 Log In
               </Link>
             </p>

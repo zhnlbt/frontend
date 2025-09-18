@@ -960,7 +960,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../context/userContext';
 
-export default function SignInPage() {
+export default function SignIn() {
   const router = useRouter();
   const { login } = useUser();
 
