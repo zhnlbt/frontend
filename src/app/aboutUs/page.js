@@ -11,7 +11,7 @@ const HomePage = () => {
           <div>
             <p className="text-blue-600 font-medium mb-4">Who we are</p>
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              We're highly skilled and professionals team.
+              {`We're highly skilled and professionals team.`}
             </h1>
             <p className="text-gray-600 text-lg leading-relaxed">
               Praesent non sem facilisis, hendrerit nisi vitae, volutpat quam. Aliquam 
@@ -160,10 +160,10 @@ const HomePage = () => {
 
               {/* Quote */}
               <blockquote className="text-center text-gray-700 text-lg leading-relaxed mb-8">
-                "Curabitur vitae aliquam risus. Mauris quis vehicula nisl, sed commodo 
+                {`"Curabitur vitae aliquam risus. Mauris quis vehicula nisl, sed commodo 
                 ipsum. Praesent semper diam ut diam elementum, ut scelerisque nibh 
                 commodo. Integer faucibus pretium vehicula. Maecenas venenatis dictum 
-                ligula. Orci varius nibh porttitor et magnis dis parturient montes."
+                ligula. Orci varius nibh porttitor et magnis dis parturient montes."`}
               </blockquote>
 
               {/* Author */}
@@ -173,7 +173,7 @@ const HomePage = () => {
               </div>
 
               {/* Quote mark */}
-              <div className="absolute bottom-4 right-8 text-6xl text-gray-300 font-serif">"</div>
+              <div className="absolute bottom-4 right-8 text-6xl text-gray-300 font-serif">{`"`}</div>
             </div>
 
             {/* Navigation dots */}

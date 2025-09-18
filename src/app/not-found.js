@@ -27,7 +27,7 @@ const Custom404 = () => {
             Opps! Page not found
           </h1>
           <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-            Something went wrong. It's look like the link is broken or the page is removed.
+            {`Something went wrong. It's look like the link is broken or the page is removed.`}
           </p>
           
           <div className="flex flex-wrap gap-4">
@@ -52,7 +52,7 @@ const Custom404 = () => {
 
         <div className="flex-1 flex justify-center items-center relative">
           <div className="relative">
-            <img 
+            <Image 
               src="/Illustration.png" 
               alt="404 Robot Illustration" 
               className="w-auto h-96 max-w-full animate-bounce"

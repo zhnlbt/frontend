@@ -324,7 +324,7 @@ const SignInPage = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h1>
               <p className="text-gray-600">
-                Don't have account{' '}
+              {' Dont have account'}
                 <Link href="/signUp" className="text-blue-600 hover:text-blue-500">
                   Create Account
                 </Link>

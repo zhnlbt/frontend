@@ -280,7 +280,7 @@ const SignUp = () => {
                     className="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600 leading-5">
-                    I've read and agree with your{' '}
+                   {` I've read and agree with your`}
                     <Link href="/terms" className="text-blue-600 hover:text-blue-500">
                       Terms of Services
                     </Link>
