@@ -1021,13 +1021,13 @@ export default function SignIn() {
       setTimeout(() => {
         switch (data.user.role) {
           case 'ADMIN':
-            router.push('/admin/dashboard');
+            router.push('/');
             break;
           case 'EMPLOYER':
-            router.push('/employer/dashboard');
+            router.push('/');
             break;
           case 'CANDIDATE':
-            router.push('/candidate/dashboard');
+            router.push('/');
             break;
           default:
             router.push('/dashboard');
