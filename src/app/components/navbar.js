@@ -154,7 +154,7 @@ const Header = () => {
         <div className="max-w-5/7 mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-10 text-sm">
           <div className="flex space-x-6">
             <Link href="/">Home</Link>
-            <Link href="/findjob">Find Job</Link>
+            <Link href="/findJobs">Find Job</Link>
             <Link href="/employers">Employers</Link>
             <Link href="/pricingplans">Pricing Plans</Link>
             <Link href="/support">Customer Support</Link>

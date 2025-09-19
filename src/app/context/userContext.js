@@ -5,6 +5,15 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext();
 
+export function useUser() {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+}
+
+
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +54,8 @@ export function UserProvider({ children }) {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    // Redirect to home or login page
+    window.location.href = '/signIn';
   };
 
   const updateUser = (updatedData) => {
@@ -67,12 +78,4 @@ export function UserProvider({ children }) {
       {children}
     </UserContext.Provider>
   );
-}
-
-export function useUser() {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
 }
