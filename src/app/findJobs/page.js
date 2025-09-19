@@ -1,5 +1,3 @@
-
-
 // 'use client'
 // import React, { useState, useEffect } from 'react';
 // import Header from '../components/navbar';
@@ -14,9 +12,12 @@
 //   Clock,
 //   DollarSign,
 //   Building2,
-//   Eye
+//   Eye,
+//   Heart,
+//   HeartOff
 // } from 'lucide-react';
-// import { jobAPI } from '../utils/api'; // Import your API functions
+// import { jobAPI } from '../utils/api';
+// import { useUser } from '../context/userContext';
 
 // // Job Type color mapping
 // const getJobTypeColor = (jobType) => {
@@ -52,8 +53,21 @@
 //   }
 // };
 
+// // Format salary range
+// const formatSalary = (salaryMin, salaryMax, salary) => {
+//   if (salary) return salary;
+//   if (salaryMin && salaryMax) {
+//     return `$${(salaryMin/1000).toFixed(0)}K - $${(salaryMax/1000).toFixed(0)}K`;
+//   }
+//   if (salaryMin) return `From $${(salaryMin/1000).toFixed(0)}K`;
+//   if (salaryMax) return `Up to $${(salaryMax/1000).toFixed(0)}K`;
+//   return 'Salary not specified';
+// };
+
 // // Job Card Component
-// const JobCard = ({ job }) => {
+// const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
+//   const { user } = useUser();
+  
 //   // Generate company logo placeholder
 //   const getCompanyInitials = (companyName) => {
 //     return companyName
@@ -71,10 +85,30 @@
   
 //   const logoColor = logoColors[job.id % logoColors.length];
 
+//   const handleFavoriteClick = (e) => {
+//     e.stopPropagation();
+//     onToggleFavorite(job.id);
+//   };
+
 //   return (
-//     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
+//     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer relative">
+//       {/* Favorite Button - Only for candidates */}
+//       {user && user.role === 'CANDIDATE' && (
+//         <button
+//           onClick={handleFavoriteClick}
+//           className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+//           title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+//         >
+//           {isFavorite ? (
+//             <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+//           ) : (
+//             <HeartOff className="w-5 h-5 text-gray-400 hover:text-red-500" />
+//           )}
+//         </button>
+//       )}
+
 //       {/* Header */}
-//       <div className="flex items-start justify-between mb-4">
+//       <div className="flex items-start justify-between mb-4 pr-10">
 //         <div className="flex items-start space-x-4">
 //           {/* Company Logo */}
 //           <div className={`${logoColor} w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-sm`}>
@@ -103,12 +137,10 @@
 //       </div>
 
 //       {/* Salary */}
-//       {job.salary && (
-//         <div className="flex items-center text-green-600 font-semibold mb-3">
-//           <DollarSign className="w-4 h-4 mr-1" />
-//           {job.salary}
-//         </div>
-//       )}
+//       <div className="flex items-center text-green-600 font-semibold mb-3">
+//         <DollarSign className="w-4 h-4 mr-1" />
+//         {formatSalary(job.salaryMin, job.salaryMax, job.salary)}
+//       </div>
 
 //       {/* Requirements */}
 //       {job.requirements && job.requirements.length > 0 && (
@@ -145,21 +177,84 @@
 
 // // Main Component
 // const JobListingPage = () => {
+//   const { user } = useUser();
 //   const [jobs, setJobs] = useState([]);
 //   const [loading, setLoading] = useState(true);
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const [pagination, setPagination] = useState({});
 //   const [viewType, setViewType] = useState('grid');
+//   const [savedJobs, setSavedJobs] = useState(new Set());
+  
+//   // Enhanced filters state
 //   const [filters, setFilters] = useState({
 //     search: '',
 //     location: '',
-//     jobType: ''
+//     jobType: '',
+//     salaryMin: '',
+//     salaryMax: '',
+//     sortBy: 'createdAt',
+//     order: 'desc'
+//   });
+
+//   // Available filter options
+//   const [filterOptions, setFilterOptions] = useState({
+//     locations: [],
+//     companies: [],
+//     jobTypes: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'REMOTE']
 //   });
 
 //   const jobsPerPage = 4;
 
+//   // Fetch saved jobs for current user
+//   const fetchSavedJobs = async () => {
+//     if (user && user.role === 'CANDIDATE') {
+//       try {
+//         const response = await jobAPI.getSavedJobs({ page: 1, limit: 1000 });
+//         const savedJobIds = new Set(response.savedJobs.map(job => job.id));
+//         setSavedJobs(savedJobIds);
+//       } catch (error) {
+//         console.error('Error fetching saved jobs:', error);
+//       }
+//     }
+//   };
+
+//   // Toggle favorite job
+//   const handleToggleFavorite = async (jobId) => {
+//     if (!user || user.role !== 'CANDIDATE') return;
+
+//     try {
+//       await jobAPI.toggleSaveJob(jobId);
+      
+//       // Update local state
+//       setSavedJobs(prev => {
+//         const newSet = new Set(prev);
+//         if (newSet.has(jobId)) {
+//           newSet.delete(jobId);
+//         } else {
+//           newSet.add(jobId);
+//         }
+//         return newSet;
+//       });
+//     } catch (error) {
+//       console.error('Error toggling favorite job:', error);
+//       alert('Failed to update favorite status. Please try again.');
+//     }
+//   };
+
+//   // Extract unique filter options from jobs
+//   const extractFilterOptions = (jobsData) => {
+//     const locations = [...new Set(jobsData.map(job => job.location))].sort();
+//     const companies = [...new Set(jobsData.map(job => job.company))].sort();
+    
+//     setFilterOptions(prev => ({
+//       ...prev,
+//       locations,
+//       companies
+//     }));
+//   };
+
 //   // Fetch jobs from backend
-//   const loadJobs = async (page = 1) => {
+//   const loadJobs = async (page = 1, newFilters = filters) => {
 //     setLoading(true);
 //     try {
 //       // Build query parameters
@@ -170,11 +265,15 @@
 //       };
       
 //       // Add filters if they exist
-//       if (filters.search) queryParams.search = filters.search;
-//       if (filters.location) queryParams.location = filters.location;
-//       if (filters.jobType) queryParams.jobType = filters.jobType;
+//       if (newFilters.search) queryParams.search = newFilters.search;
+//       if (newFilters.location) queryParams.location = newFilters.location;
+//       if (newFilters.jobType) queryParams.jobType = newFilters.jobType;
+//       if (newFilters.salaryMin) queryParams.salaryMin = newFilters.salaryMin;
+//       if (newFilters.salaryMax) queryParams.salaryMax = newFilters.salaryMax;
+//       if (newFilters.sortBy) queryParams.sortBy = newFilters.sortBy;
+//       if (newFilters.order) queryParams.order = newFilters.order;
       
-//       // Call the actual API
+//       // Call the API
 //       const response = await jobAPI.getAllJobs(queryParams);
       
 //       setJobs(response.jobs);
@@ -184,6 +283,11 @@
 //         limit: response.pagination.limit,
 //         totalPages: response.pagination.totalPages
 //       });
+
+//       // Extract filter options from first load
+//       if (page === 1 && (!filterOptions.locations.length || !filterOptions.companies.length)) {
+//         extractFilterOptions(response.jobs);
+//       }
 //     } catch (error) {
 //       console.error('Error fetching jobs:', error);
 //       alert('Failed to fetch jobs. Please try again.');
@@ -192,7 +296,13 @@
 //     }
 //   };
 
-//   // Load jobs on component mount and when page changes
+//   // Load jobs on component mount
+//   useEffect(() => {
+//     loadJobs(1);
+//     fetchSavedJobs();
+//   }, []);
+
+//   // Reload when page changes
 //   useEffect(() => {
 //     loadJobs(currentPage);
 //   }, [currentPage]);
@@ -200,7 +310,43 @@
 //   // Handle search
 //   const handleSearch = () => {
 //     setCurrentPage(1);
-//     loadJobs(1);
+//     loadJobs(1, filters);
+//   };
+
+//   // Handle filter change
+//   const handleFilterChange = (key, value) => {
+//     const newFilters = { ...filters, [key]: value };
+//     setFilters(newFilters);
+    
+//     // Auto-apply filters (except for search which needs manual trigger)
+//     if (key !== 'search') {
+//       setCurrentPage(1);
+//       loadJobs(1, newFilters);
+//     }
+//   };
+
+//   // Handle sort change
+//   const handleSortChange = (sortBy, order) => {
+//     const newFilters = { ...filters, sortBy, order };
+//     setFilters(newFilters);
+//     setCurrentPage(1);
+//     loadJobs(1, newFilters);
+//   };
+
+//   // Clear all filters
+//   const clearFilters = () => {
+//     const clearedFilters = {
+//       search: '',
+//       location: '',
+//       jobType: '',
+//       salaryMin: '',
+//       salaryMax: '',
+//       sortBy: 'createdAt',
+//       order: 'desc'
+//     };
+//     setFilters(clearedFilters);
+//     setCurrentPage(1);
+//     loadJobs(1, clearedFilters);
 //   };
 
 //   // Handle pagination
@@ -213,39 +359,31 @@
 //     const pages = [];
 //     const totalPages = pagination.totalPages || 1;
     
-//     // Always show first page
 //     pages.push(1);
     
-//     // Calculate start and end pages for the current range
 //     let startPage = Math.max(2, currentPage - 1);
 //     let endPage = Math.min(totalPages - 1, currentPage + 1);
     
-//     // Adjust if we're near the beginning
 //     if (currentPage <= 2) {
 //       endPage = Math.min(4, totalPages);
 //     }
     
-//     // Adjust if we're near the end
 //     if (currentPage >= totalPages - 1) {
 //       startPage = Math.max(2, totalPages - 2);
 //     }
     
-//     // Add ellipsis after first page if needed
 //     if (startPage > 2) {
 //       pages.push('...');
 //     }
     
-//     // Add middle pages
 //     for (let i = startPage; i <= endPage; i++) {
 //       pages.push(i);
 //     }
     
-//     // Add ellipsis before last page if needed
 //     if (endPage < totalPages - 1) {
 //       pages.push('...');
 //     }
     
-//     // Add last page if there is more than one page
 //     if (totalPages > 1) {
 //       pages.push(totalPages);
 //     }
@@ -274,9 +412,10 @@
 //                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
 //                   <input
 //                     type="text"
-//                     placeholder="Job title, Keyword..."
+//                     placeholder="Job title, keyword, company..."
 //                     value={filters.search}
-//                     onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+//                     onChange={(e) => handleFilterChange('search', e.target.value)}
+//                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
 //                     className="text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 //                   />
 //                 </div>
@@ -285,33 +424,29 @@
 //               <div className="flex-1 min-w-0">
 //                 <div className="relative">
 //                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-//                   <input
-//                     type="text"
-//                     placeholder="Location"
+//                   <select
 //                     value={filters.location}
-//                     onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-//                     className="text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                   />
+//                     onChange={(e) => handleFilterChange('location', e.target.value)}
+//                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+//                   >
+//                     <option value="">All Locations</option>
+//                     {filterOptions.locations.map(location => (
+//                       <option key={location} value={location}>{location}</option>
+//                     ))}
+//                   </select>
 //                 </div>
 //               </div>
 
 //               <select
 //                 value={filters.jobType}
-//                 onChange={(e) => setFilters(prev => ({ ...prev, jobType: e.target.value }))}
+//                 onChange={(e) => handleFilterChange('jobType', e.target.value)}
 //                 className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 //               >
-//                 <option value="">Select Category</option>
-//                 <option value="FULL_TIME">Full Time</option>
-//                 <option value="PART_TIME">Part Time</option>
-//                 <option value="CONTRACT">Contract</option>
-//                 <option value="INTERNSHIP">Internship</option>
-//                 <option value="REMOTE">Remote</option>
+//                 <option value="">All Job Types</option>
+//                 {filterOptions.jobTypes.map(type => (
+//                   <option key={type} value={type}>{formatJobType(type)}</option>
+//                 ))}
 //               </select>
-
-//               <button className="px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-//                 <Filter className="w-4 h-4" />
-//                 Advance Filter
-//               </button>
 
 //               <button
 //                 onClick={handleSearch}
@@ -319,6 +454,37 @@
 //               >
 //                 Find Job
 //               </button>
+//             </div>
+
+//             {/* Salary Filter */}
+//             <div className="mt-4 flex gap-4 items-center">
+//               <div className="flex items-center gap-2">
+//                 <label className="text-sm font-medium text-gray-700">Salary:</label>
+//                 <input
+//                   type="number"
+//                   placeholder="Min ($)"
+//                   value={filters.salaryMin}
+//                   onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
+//                   className="w-24 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 />
+//                 <span className="text-gray-500">-</span>
+//                 <input
+//                   type="number"
+//                   placeholder="Max ($)"
+//                   value={filters.salaryMax}
+//                   onChange={(e) => handleFilterChange('salaryMax', e.target.value)}
+//                   className="w-24 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 />
+//               </div>
+              
+//               {(filters.search || filters.location || filters.jobType || filters.salaryMin || filters.salaryMax) && (
+//                 <button
+//                   onClick={clearFilters}
+//                   className="text-sm text-blue-600 hover:text-blue-800 underline"
+//                 >
+//                   Clear all filters
+//                 </button>
+//               )}
 //             </div>
 //           </div>
 //         </div>
@@ -329,24 +495,37 @@
 //         {/* Controls */}
 //         <div className="flex items-center justify-between mb-6">
 //           <div className="flex items-center gap-4">
-//             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-//               <option>All Categories</option>
-//             </select>
-//             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-//               <option>All Locations</option>
-//             </select>
+//             <div className="text-sm text-gray-600">
+//               {pagination.total ? `${pagination.total} jobs found` : 'Loading...'}
+//             </div>
 //           </div>
           
 //           <div className="flex items-center gap-4">
-//             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-//               <option>Latest</option>
-//               <option>Oldest</option>
-//               <option>Salary High to Low</option>
-//               <option>Salary Low to High</option>
+//             <select 
+//               value={`${filters.sortBy}_${filters.order}`}
+//               onChange={(e) => {
+//                 const [sortBy, order] = e.target.value.split('_');
+//                 handleSortChange(sortBy, order);
+//               }}
+//               className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+//             >
+//               <option value="createdAt_desc">Latest</option>
+//               <option value="createdAt_asc">Oldest</option>
+//               <option value="title_asc">Title A-Z</option>
+//               <option value="title_desc">Title Z-A</option>
+//               <option value="company_asc">Company A-Z</option>
+//               <option value="company_desc">Company Z-A</option>
+//               <option value="salaryMax_desc">Salary High to Low</option>
+//               <option value="salaryMin_asc">Salary Low to High</option>
+//               <option value="viewCount_desc">Most Viewed</option>
 //             </select>
             
-//             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-//               <option>{jobsPerPage} per page</option>
+//             <select 
+//               value={jobsPerPage}
+//               className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+//               disabled
+//             >
+//               <option value={jobsPerPage}>{jobsPerPage} per page</option>
 //             </select>
             
 //             <div className="flex border border-gray-300 rounded-lg overflow-hidden">
@@ -380,7 +559,12 @@
 //                 : 'grid-cols-1'
 //             }`}>
 //               {jobs.map((job) => (
-//                 <JobCard key={job.id} job={job} />
+//                 <JobCard 
+//                   key={job.id} 
+//                   job={job} 
+//                   onToggleFavorite={handleToggleFavorite}
+//                   isFavorite={savedJobs.has(job.id)}
+//                 />
 //               ))}
 //             </div>
 
@@ -428,17 +612,21 @@
 //         ) : (
 //           <div className="text-center py-12">
 //             <div className="text-gray-500 text-lg mb-2">No jobs found</div>
-//             <div className="text-gray-400">Try adjusting your search filters</div>
+//             <div className="text-gray-400 mb-4">Try adjusting your search filters</div>
+//             {(filters.search || filters.location || filters.jobType || filters.salaryMin || filters.salaryMax) && (
+//               <button
+//                 onClick={clearFilters}
+//                 className="text-blue-600 hover:text-blue-800 underline"
+//               >
+//                 Clear all filters and try again
+//               </button>
+//             )}
 //           </div>
 //         )}
 //       </div>
 //     </div>
 //   );
 // };
-
-// export default JobListingPage;
-
-
 
 'use client'
 import React, { useState, useEffect } from 'react';
@@ -460,6 +648,7 @@ import {
 } from 'lucide-react';
 import { jobAPI } from '../utils/api';
 import { useUser } from '../context/userContext';
+import { useRouter } from 'next/navigation';
 
 // Job Type color mapping
 const getJobTypeColor = (jobType) => {
@@ -506,11 +695,10 @@ const formatSalary = (salaryMin, salaryMax, salary) => {
   return 'Salary not specified';
 };
 
-// Job Card Component
-const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
+// Job Card Component (unchanged)
+const JobCard = ({ job, onToggleFavorite, isFavorite, onClick }) => {
   const { user } = useUser();
-  
-  // Generate company logo placeholder
+
   const getCompanyInitials = (companyName) => {
     return companyName
       .split(' ')
@@ -533,8 +721,10 @@ const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer relative">
-      {/* Favorite Button - Only for candidates */}
+    <div 
+      className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer relative"
+      onClick={onClick}
+    >
       {user && user.role === 'CANDIDATE' && (
         <button
           onClick={handleFavoriteClick}
@@ -552,11 +742,9 @@ const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
       {/* Header */}
       <div className="flex items-start justify-between mb-4 pr-10">
         <div className="flex items-start space-x-4">
-          {/* Company Logo */}
           <div className={`${logoColor} w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-sm`}>
             {getCompanyInitials(job.company)}
           </div>
-          
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-1">
               {job.title}
@@ -571,20 +759,16 @@ const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
             </div>
           </div>
         </div>
-        
-        {/* Job Type Badge */}
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getJobTypeColor(job.jobType)}`}>
           {formatJobType(job.jobType)}
         </span>
       </div>
 
-      {/* Salary */}
       <div className="flex items-center text-green-600 font-semibold mb-3">
         <DollarSign className="w-4 h-4 mr-1" />
         {formatSalary(job.salaryMin, job.salaryMax, job.salary)}
       </div>
 
-      {/* Requirements */}
       {job.requirements && job.requirements.length > 0 && (
         <div className="mb-4">
           <div className="flex flex-wrap gap-2">
@@ -602,7 +786,6 @@ const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
         </div>
       )}
 
-      {/* Footer */}
       <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t">
         <div className="flex items-center">
           <Clock className="w-4 h-4 mr-1" />
@@ -617,17 +800,19 @@ const JobCard = ({ job, onToggleFavorite, isFavorite }) => {
   );
 };
 
-// Main Component
+// Main Component with enhanced error handling
 const JobListingPage = () => {
   const { user } = useUser();
+  const router = useRouter();
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({});
   const [viewType, setViewType] = useState('grid');
   const [savedJobs, setSavedJobs] = useState(new Set());
   
-  // Enhanced filters state
   const [filters, setFilters] = useState({
     search: '',
     location: '',
@@ -638,7 +823,6 @@ const JobListingPage = () => {
     order: 'desc'
   });
 
-  // Available filter options
   const [filterOptions, setFilterOptions] = useState({
     locations: [],
     companies: [],
@@ -667,7 +851,6 @@ const JobListingPage = () => {
     try {
       await jobAPI.toggleSaveJob(jobId);
       
-      // Update local state
       setSavedJobs(prev => {
         const newSet = new Set(prev);
         if (newSet.has(jobId)) {
@@ -695,10 +878,12 @@ const JobListingPage = () => {
     }));
   };
 
-  // Fetch jobs from backend
+  // Fetch jobs from backend with enhanced error handling
   const loadJobs = async (page = 1, newFilters = filters) => {
-    setLoading(true);
     try {
+      setLoading(true);
+      setError(null);
+      
       // Build query parameters
       const queryParams = {
         page,
@@ -715,8 +900,12 @@ const JobListingPage = () => {
       if (newFilters.sortBy) queryParams.sortBy = newFilters.sortBy;
       if (newFilters.order) queryParams.order = newFilters.order;
       
+      console.log('Fetching jobs with params:', queryParams);
+      
       // Call the API
       const response = await jobAPI.getAllJobs(queryParams);
+      
+      console.log('API response:', response);
       
       setJobs(response.jobs);
       setPagination({
@@ -732,7 +921,11 @@ const JobListingPage = () => {
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);
-      alert('Failed to fetch jobs. Please try again.');
+      setError('Failed to fetch jobs. Please check your connection and try again.');
+      
+      // Set empty data for debugging
+      setJobs([]);
+      setPagination({});
     } finally {
       setLoading(false);
     }
@@ -760,7 +953,6 @@ const JobListingPage = () => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     
-    // Auto-apply filters (except for search which needs manual trigger)
     if (key !== 'search') {
       setCurrentPage(1);
       loadJobs(1, newFilters);
@@ -833,9 +1025,36 @@ const JobListingPage = () => {
     return pages;
   };
 
+  // Test API connection
+  const testAPIConnection = async () => {
+    try {
+      console.log('Testing API connection...');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/health`);
+      const data = await response.json();
+      console.log('API health check:', data);
+      return data;
+    } catch (error) {
+      console.error('API connection test failed:', error);
+      return null;
+    }
+  };
+
+  // Debug function to check what's happening
+  useEffect(() => {
+    console.log('Current state:', {
+      loading,
+      error,
+      jobs,
+      pagination,
+      filters
+    });
+    
+    // Test API connection on component mount
+    testAPIConnection();
+  }, [loading, error, jobs, pagination]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <Header/>
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -987,6 +1206,22 @@ const JobListingPage = () => {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+              <span className="text-red-700">{error}</span>
+            </div>
+            <button
+              onClick={() => loadJobs(currentPage)}
+              className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
         {/* Job Listings */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -1006,6 +1241,7 @@ const JobListingPage = () => {
                   job={job} 
                   onToggleFavorite={handleToggleFavorite}
                   isFavorite={savedJobs.has(job.id)}
+                  onClick={() => router.push(`/jobs/${job.id}`)}
                 />
               ))}
             </div>

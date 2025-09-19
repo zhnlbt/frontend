@@ -187,3 +187,8 @@ export const userAPI = {
     });
   },
 };
+
+// In utils/api.js - jobAPI section
+getJobById: async (jobId) => {
+  return makeAuthenticatedRequest(`/jobs/${jobId}`);
+};
